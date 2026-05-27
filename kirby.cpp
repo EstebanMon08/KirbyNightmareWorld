@@ -1,56 +1,126 @@
 #include <locale.h>
 #include <ncurses.h>
+#include <wchar.h>
 #include <pthread.h>
-#include <unistd.h>W
+#include <unistd.h>
 
-#define SCREEN_W   120
-#define SCREEN_H   80
-#define GROUND_Y    20
+#define SCREEN_W   500
+#define SCREEN_H   250
+#define GROUND_Y    5
 #define FPS         30
-#define WORLD_W    200
-#define KIRBY_H     5
-#define KIRBY_W     11
+#define WORLD_W    1000
 
 
+/* ── Sprites con caracteres especiales (wchar_t) ── */
 
+#define KIRBY_H     21
+#define KIRBY_W     45
 
-const char* SPRITE_IDLE[KIRBY_H] = {
-    "   OOOOO   ",
-    " OOOOOOOOO ",
-    "OOOOOOOOOOO",
-    " OOOOOOOOO ",
-    "   OOOOO   "
+const wchar_t* SPRITE_IDLE[KIRBY_H] = {
+   L"                                      ",
+   L"                                      ",
+   L"              ███████████             ",
+   L"          ████           ████         ",
+   L"       ███                   ███      ",
+   L"     ██                         ██    ",
+   L"    █                             █   ",
+   L"    █                              █  ",
+   L"  ██                 ▒▒█   ▒▒█     █  ",
+   L" █                   ▒▒█   ▒▒█      █ ",
+   L"█                    ███   ███       █",
+   L"█                    ███   ███       █",
+   L"█            ▒▒▒▒▒             ▒▒▒▒  █",
+   L"█                                    █",
+   L"█       █               ███       █  █",
+   L" ██    █                         ██ █ ",
+   L"   ████                         ████  ",
+   L"       ███                   █████    ",
+   L"    ███▒▒▒███████       █████▒▒▒▒██   ",
+   L"  ██▒▒▒▒▒▒▒▒▒▒▒▒████████▒▒▒▒▒▒▒▒▒▒▒██ ",
+   L"    █████████████      █████████████  "
 };
 
-const char* SPRITE_WALK[KIRBY_H] = {
-    "   OOOOO   ",
-    " OOOOOOOOO ",
-    "OOOOOOOOOOO",
-    " OOOOOOOOO ",
-    "   OOOOO   "
+const wchar_t* SPRITE_WALK[KIRBY_H] = {
+   L"                 ███████████                 ",
+   L"             ████           ████             ",
+   L"          ███                   ███          ",
+   L"        ██                         ██        ",
+   L"     ██████                          ██      ",
+   L"   ███                  ▒▒█   ▒▒█     ████   ",
+   L" ███                    ▒▒█   ▒▒█     ██ ██  ",
+   L"██                      ███   ███     ██   ██",
+   L"██                      ███   ███     ██    █",
+   L"██              ▒▒▒▒▒             ▒▒▒▒██    █",
+   L" ██                                   ██   ██",
+   L"   ███                     ███        ██  ██ ",
+   L"     █████                           █████   ",
+   L"       ██                           ██       ",
+   L"      ████                         ████████  ",
+   L"     ██▒▒████                   ████▒▒▒▒▒▒██ ",
+   L"     ██▒▒▒▒▒▒███           █████▒▒▒▒▒▒▒▒▒▒██ ",
+   L"      ██▒▒▒▒▒▒▒▒██████████████▒▒▒▒▒▒▒▒█████  ",
+   L"       ███▒▒▒▒▒▒▒▒██         ██████████      ",
+   L"         ████▒▒▒▒███                         ",
+   L"            ██████                           ",
+   
+
 };
-const char* SPRITE_JUMP[KIRBY_H] = {
-    "   OOOOO   ",
-    " OOOOOOOOO ",
-    "OOOOOOOOOOO",
-    " OOOOOOOOO ",
-    "   OOOOO   "
+
+const wchar_t* SPRITE_JUMP[KIRBY_H] = {
+   L"              ███████████             ",
+   L"          ████           ████         ",
+   L"       ███                   ███      ",
+   L"     ██                         ██    ",
+   L"    █                             █   ",
+   L"    █                              █  ",
+   L"  ██                 ▒▒█   ▒▒█     █  ",
+   L" █                   ▒▒█   ▒▒█      █ ",
+   L"█                    ███   ███       █",
+   L"█                    ███   ███       █",
+   L"█            ▒▒▒▒▒             ▒▒▒▒  █",
+   L"█                                    █",
+   L"█       █               ███       █  █",
+   L" ██    █                         ██ █ ",
+   L"   ████                         ████  ",
+   L"       ███                   █████    ",
+   L"    ███▒▒▒███████       █████▒▒▒▒██   ",
+   L"  ██▒▒▒▒▒▒▒▒▒▒▒▒████████▒▒▒▒▒▒▒▒▒▒▒██ ",
+   L"    █████████████      █████████████  "
 };
-const char* SPRITE_FALL[KIRBY_H] = {
-    "   OOOOO   ",
-    " OOOOOOOOO ",
-    "OOOOOOOOOOO",
-    " OOOOOOOOO ",
-    "   OOOOO   "
+
+const wchar_t* SPRITE_FALL[KIRBY_H] = {
+   L"              ███████████             ",
+   L"          ████           ████         ",
+   L"       ███                   ███      ",
+   L"     ██                         ██    ",
+   L"    █                             █   ",
+   L"    █                              █  ",
+   L"  ██                 ▒▒█   ▒▒█     █  ",
+   L" █                   ▒▒█   ▒▒█      █ ",
+   L"█                    ███   ███       █",
+   L"█                    ███   ███       █",
+   L"█            ▒▒▒▒▒             ▒▒▒▒  █",
+   L"█                                    █",
+   L"█       █               ███       █  █",
+   L" ██    █                         ██ █ ",
+   L"   ████                         ████  ",
+   L"       ███                   █████    ",
+   L"    ███▒▒▒███████       █████▒▒▒▒██   ",
+   L"  ██▒▒▒▒▒▒▒▒▒▒▒▒████████▒▒▒▒▒▒▒▒▒▒▒██ ",
+   L"    █████████████      █████████████  "
 };
+
+/* ── Plataformas ── */
 
 struct Platform { float x, y; int width; };
 const int NUM_PLATFORMS = 8;
 Platform platforms[NUM_PLATFORMS] = {
-    {  0, 30, 120}, {130, 30,  80}, {220, 30, 180},
-    { 25, 23,  15}, { 60, 18,  12}, {100, 22,  18},
-    {160, 16,  10}, {220, 20,  20},
+    {  0, 35, 180}, {200, 35, 120}, {350, 35, 250},  // suelo base
+    { 30, 28,  25}, { 90, 22,  20}, {160, 16,  18},  // plataformas altas
+    {260, 20,  22}, {380, 25,  30},
 };
+
+/* ── Estado del juego ── */
 
 struct GameState {
     float worldX, y, velY, cameraX;
@@ -60,13 +130,19 @@ struct GameState {
     bool  jumpHeld;
 };
 
+/* Mutex para estado del juego */
 pthread_mutex_t gMutex = PTHREAD_MUTEX_INITIALIZER;
+/* Mutex dedicado para ncurses (getch, erase, mvaddch, refresh, etc.) */
+pthread_mutex_t ncMutex = PTHREAD_MUTEX_INITIALIZER;
+
 GameState gState;
 
 static int noLeftCount  = 99;
 static int noRightCount = 99;
 static int noJumpCount  = 99;
 const  int RELEASE_THRESHOLD = 8;
+
+/* ── Hilo de input ── */
 
 void* inputThread(void*) {
     while (true) {
@@ -76,18 +152,23 @@ void* inputThread(void*) {
 
         int ch;
         bool sawLeft = false, sawRight = false, sawJump = false;
+
+        /* Proteger getch() con ncMutex */
+        pthread_mutex_lock(&ncMutex);
         while ((ch = getch()) != ERR) {
             switch (ch) {
                 case 'a': case 'A': sawLeft  = true; break;
                 case 'd': case 'D': sawRight = true; break;
                 case 'w': case 'W': case ' ': sawJump = true; break;
                 case 'q': case 'Q': case 27:
+                    pthread_mutex_unlock(&ncMutex);
                     pthread_mutex_lock(&gMutex);
                     gState.running = false;
                     pthread_mutex_unlock(&gMutex);
                     return nullptr;
             }
         }
+        pthread_mutex_unlock(&ncMutex);
 
         if (sawLeft)  noLeftCount  = 0; else noLeftCount++;
         if (sawRight) noRightCount = 0; else noRightCount++;
@@ -103,6 +184,8 @@ void* inputThread(void*) {
     }
     return nullptr;
 }
+
+/* ── Hilo de fisica ── */
 
 void* physicsThread(void*) {
     while (true) {
@@ -163,8 +246,11 @@ void* physicsThread(void*) {
     return nullptr;
 }
 
+/* ── Hilo de render ── */
+
 void* renderThread(void*) {
     while (true) {
+        /* Leer estado del juego */
         pthread_mutex_lock(&gMutex);
         if (!gState.running) { pthread_mutex_unlock(&gMutex); break; }
         float camX    = gState.cameraX;
@@ -176,41 +262,55 @@ void* renderThread(void*) {
         int   jumps   = gState.jumpCount;
         pthread_mutex_unlock(&gMutex);
 
+        /* Proteger TODO el dibujado con ncMutex */
+        pthread_mutex_lock(&ncMutex);
+
         erase();
 
+        /* Dibujar plataformas con '═' */
         for (int i = 0; i < NUM_PLATFORMS; i++) {
             Platform& p = platforms[i];
             int sx = (int)(p.x - camX);
             for (int j = 0; j < p.width; j++) {
                 int px = sx + j;
-                if (px >= 0 && px < SCREEN_W && (int)p.y >= 2 && (int)p.y < SCREEN_H)
-                    mvaddch((int)p.y, px, '=');
+                if (px >= 0 && px < SCREEN_W && (int)p.y >= 2 && (int)p.y < SCREEN_H) {
+                    wchar_t blk[] = L"═";
+                    mvaddwstr((int)p.y, px, blk);
+                }
             }
         }
 
-        const char** sprite;
+        /* Seleccionar sprite */
+        const wchar_t** sprite;
         if      (jumping && velY <  0) sprite = SPRITE_JUMP;
         else if (jumping && velY >= 0) sprite = SPRITE_FALL;
         else if (moving)               sprite = SPRITE_WALK;
         else                           sprite = SPRITE_IDLE;
 
+        /* Dibujar Kirby */
         int kx = (int)(kWorldX - camX);
         for (int r = 0; r < KIRBY_H; r++) {
             int row = (int)ky + r;
             if (row >= 2 && row < SCREEN_H && kx >= 0 && kx < SCREEN_W)
-                mvprintw(row, kx, "%s", sprite[r]);
+                mvaddwstr(row, kx, sprite[r]);
         }
 
+        /* HUD */
         mvprintw(1, 0, "Estado: %s",
             jumping && velY <  0 ? "SUBIENDO " :
             jumping && velY >= 0 ? "CAYENDO  " :
-            moving              ? "CAMINANDO" : "IDLE     ");
+            moving               ? "CAMINANDO" : "IDLE     ");
 
         refresh();
+
+        pthread_mutex_unlock(&ncMutex);
+
         usleep(1000000 / FPS);
     }
     return nullptr;
 }
+
+/* ── Main ── */
 
 int main() {
     setlocale(LC_ALL, "");
@@ -232,6 +332,7 @@ int main() {
     pthread_join(tRe, nullptr);
 
     pthread_mutex_destroy(&gMutex);
+    pthread_mutex_destroy(&ncMutex);
     endwin();
     return 0;
 }
