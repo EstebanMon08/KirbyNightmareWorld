@@ -4,11 +4,14 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#define SCREEN_W   500
-#define SCREEN_H   250
-#define GROUND_Y    5
+
+
 #define FPS         30
 #define WORLD_W    1000
+
+/* Tamaño real de la terminal, detectado en runtime */
+int SCREEN_W = 80;
+int SCREEN_H = 24;
 
 
 /* ── Sprites con caracteres especiales (wchar_t) ── */
@@ -67,58 +70,73 @@ const wchar_t* SPRITE_WALK[KIRBY_H] = {
 };
 
 const wchar_t* SPRITE_JUMP[KIRBY_H] = {
-   L"              ███████████             ",
-   L"          ████           ████         ",
-   L"       ███                   ███      ",
-   L"     ██                         ██    ",
-   L"    █                             █   ",
-   L"    █                              █  ",
-   L"  ██                 ▒▒█   ▒▒█     █  ",
-   L" █                   ▒▒█   ▒▒█      █ ",
-   L"█                    ███   ███       █",
-   L"█                    ███   ███       █",
-   L"█            ▒▒▒▒▒             ▒▒▒▒  █",
-   L"█                                    █",
-   L"█       █               ███       █  █",
-   L" ██    █                         ██ █ ",
-   L"   ████                         ████  ",
-   L"       ███                   █████    ",
-   L"    ███▒▒▒███████       █████▒▒▒▒██   ",
-   L"  ██▒▒▒▒▒▒▒▒▒▒▒▒████████▒▒▒▒▒▒▒▒▒▒▒██ ",
-   L"    █████████████      █████████████  "
+   L"            █████████████            ",
+   L"  ███████ ██             ██ ███████  ",
+   L" █       █                 █      ██ ",
+   L"█                                  ██",
+   L"█                                   █",
+   L" █                     ▒█  ▒█      ██",
+   L"  ██                   ▒█  ▒█     ██ ",
+   L"  █                    ██  ██     █  ",
+   L" █              ▒▒▒           ▒▒▒  █ ",
+   L" █                  █              █ ",
+   L" █                   █████████     █ ",
+   L" █                  █              █ ",
+   L"  █                                █ ",
+   L"  █                               █  ",
+   L"   ██                            █   ",
+   L"  ████                         ██    ",
+   L" ██▒▒▒██                      █      ",
+   L" █▒▒▒▒▒▒██████           █████       ",
+   L" █▒▒▒▒▒▒█▒▒▒█ ███████████            ",
+   L" ██▒▒▒██▒▒▒█                         ",
+   L"   ███  ███                          ",
 };
 
 const wchar_t* SPRITE_FALL[KIRBY_H] = {
-   L"              ███████████             ",
-   L"          ████           ████         ",
-   L"       ███                   ███      ",
-   L"     ██                         ██    ",
-   L"    █                             █   ",
-   L"    █                              █  ",
-   L"  ██                 ▒▒█   ▒▒█     █  ",
-   L" █                   ▒▒█   ▒▒█      █ ",
-   L"█                    ███   ███       █",
-   L"█                    ███   ███       █",
-   L"█            ▒▒▒▒▒             ▒▒▒▒  █",
-   L"█                                    █",
-   L"█       █               ███       █  █",
-   L" ██    █                         ██ █ ",
-   L"   ████                         ████  ",
-   L"       ███                   █████    ",
-   L"    ███▒▒▒███████       █████▒▒▒▒██   ",
-   L"  ██▒▒▒▒▒▒▒▒▒▒▒▒████████▒▒▒▒▒▒▒▒▒▒▒██ ",
-   L"    █████████████      █████████████  "
+   L"            █████████████            ",
+   L"  ███████ ██             ██ ███████  ",
+   L" █       █                 █      ██ ",
+   L"█                                  ██",
+   L"█                                   █",
+   L" █                     ▒█  ▒█      ██",
+   L"  ██                   ▒█  ▒█     ██ ",
+   L"  █                    ██  ██     █  ",
+   L" █              ▒▒▒           ▒▒▒  █ ",
+   L" █                  █              █ ",
+   L" █                   █████████     █ ",
+   L" █                  █              █ ",
+   L"  █                                █ ",
+   L"  █                               █  ",
+   L"   ██                            █   ",
+   L"  ████                         ██    ",
+   L" ██▒▒▒██                      █      ",
+   L" █▒▒▒▒▒▒██████           █████       ",
+   L" █▒▒▒▒▒▒█▒▒▒█ ███████████            ",
+   L" ██▒▒▒██▒▒▒█                         ",
+   L"   ███  ███                          ",
 };
 
 /* ── Plataformas ── */
 
 struct Platform { float x, y; int width; };
 const int NUM_PLATFORMS = 8;
-Platform platforms[NUM_PLATFORMS] = {
-    {  0, 35, 180}, {200, 35, 120}, {350, 35, 250},  // suelo base
-    { 30, 28,  25}, { 90, 22,  20}, {160, 16,  18},  // plataformas altas
-    {260, 20,  22}, {380, 25,  30},
-};
+Platform platforms[NUM_PLATFORMS];
+
+/* Posicionar plataformas relativo al tamaño real de la terminal */
+void initPlatforms() {
+    int groundY = SCREEN_H - 3;  /* suelo cerca del fondo */
+    /* Suelo base */
+    platforms[0] = {  0,  (float)groundY, 180};
+    platforms[1] = {200,  (float)groundY, 120};
+    platforms[2] = {350,  (float)groundY, 250};
+    /* Plataformas elevadas (relativas al suelo) */
+    platforms[3] = { 30,  (float)(groundY - 8),  25};
+    platforms[4] = { 90,  (float)(groundY - 15), 20};
+    platforms[5] = {160,  (float)(groundY - 20), 18};
+    platforms[6] = {260,  (float)(groundY - 16), 22};
+    platforms[7] = {380,  (float)(groundY - 10), 30};
+}
 
 /* ── Estado del juego ── */
 
@@ -199,15 +217,15 @@ void* physicsThread(void*) {
 
         if (gState.keyJump && !gState.jumpHeld) {
             if (gState.onGround) {
-                gState.velY = -2.2f; gState.onGround = false;
+                gState.velY = -3.0f; gState.onGround = false;
                 gState.jumping = true; gState.jumpCount = 1;
             } else if (gState.jumpCount < 5) {
                 gState.jumpCount++;
                 switch (gState.jumpCount) {
                     case 2: gState.velY = -2.0f; break;
-                    case 3: gState.velY = -1.8f; break;
-                    case 4: gState.velY = -1.5f; break;
-                    case 5: gState.velY = -0.3f; break;
+                    case 3: gState.velY = -2.0f; break;
+                    case 4: gState.velY = -2.0f; break;
+                    case 5: gState.velY = -2.0f; break;
                 }
             }
             gState.jumpHeld = true;
@@ -316,6 +334,12 @@ int main() {
     setlocale(LC_ALL, "");
     initscr(); cbreak(); noecho();
     curs_set(0); nodelay(stdscr, TRUE); keypad(stdscr, TRUE);
+
+    /* Detectar tamaño real de la terminal */
+    getmaxyx(stdscr, SCREEN_H, SCREEN_W);
+
+    /* Posicionar plataformas relativo al tamaño detectado */
+    initPlatforms();
 
     gState.worldX = 10; gState.y = platforms[0].y - KIRBY_H;
     gState.velY = 0; gState.cameraX = 0; gState.onGround = true;
