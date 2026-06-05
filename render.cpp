@@ -104,6 +104,9 @@ void* renderThread(void*) {
         pthread_mutex_lock(&ncMutex);
         erase();
 
+        //Sprites instrucciones
+
+
         /* ── MENÚ ── */
         if (isMenu) {
             int top  = SCREEN_H / 2 - MENU_H / 2;
@@ -113,20 +116,13 @@ void* renderThread(void*) {
                 if (yy >= 0 && yy < SCREEN_H && left >= 0)
                     mvaddwstr(yy, left, SPRITE_MENU[i]);
             }
-            int optY = top + MENU_H + 1;
-            int cx   = SCREEN_W / 2;
-            mvprintw(optY,     cx - 7,  "__/\\__  INICIAR  __/\\__");
-            mvprintw(optY + 1, cx - 7,  "\\    /  RANKING  \\    /");
-            mvprintw(optY + 2, cx - 7,  "/_  _\\ CONTROLES /_  _\\");
-            mvprintw(optY + 3, cx - 4,  "\\/    SALIR    \\/");
-            mvprintw(optY + 5, cx - 13, "PRESIONA ENTER PARA JUGAR");
-            mvprintw(optY + 6, cx -  9, "Q / ESC para salir");
             refresh();
             pthread_mutex_unlock(&ncMutex);
             usleep(1000000 / FPS);
             continue;
         }
-
+        
+        
         /* ── GAME OVER ── */
         if (isGameOver) {
             const char* go[] = {
@@ -141,7 +137,6 @@ void* renderThread(void*) {
             int startX = SCREEN_W / 2 - 37;
             for (int i = 0; i < 6; i++)
                 mvprintw(startY + i, startX, "%s", go[i]);
-            mvprintw(startY + 8, SCREEN_W / 2 - 16, "PRESIONA ENTER PARA REINICIAR");
             refresh();
             pthread_mutex_unlock(&ncMutex);
             usleep(1000000 / FPS);
@@ -260,13 +255,6 @@ void* renderThread(void*) {
                 mvaddwstr(r, xx, cell);
             }
         }
-
-        mvprintw(1, 0, "Estado: %s  HP: %d/%d",
-            jumping && velY < 0  ? "SUBIENDO " :
-            jumping && velY >= 0 ? "CAYENDO  " :
-            moving               ? "CAMINANDO" : "IDLE     ",
-            hp, maxHp);
-
         refresh();
         pthread_mutex_unlock(&ncMutex);
         usleep(1000000 / FPS);

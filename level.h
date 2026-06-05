@@ -9,8 +9,8 @@
 #define BLOCK_H 32
 #define PLAT_W  45
 #define PLAT_H   5
-#define GOAL_W   6
-#define GOAL_H   4
+#define GOAL_W   42
+#define GOAL_H   20
 
 #define WORLD_W 1400
 

@@ -22,11 +22,11 @@
 #define ICON_W   35
 
 /* ── Dimensiones de la meta ── */
-#define GOAL_W    6
-#define GOAL_H    4
+#define GOAL_W    42
+#define GOAL_H    20
 
 /* ── Dimensiones del menú ── */
-#define MENU_H   18
+#define MENU_H   39
 #define MENU_W   67
 
 /* ── Sprites de Kirby ── */
