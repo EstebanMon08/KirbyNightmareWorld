@@ -26,14 +26,29 @@
    Dibuja la bola centrada en (cxScreen, cyScreen).
    Llamar con ncMutex tomado.
    ════════════════════════════════ */
-void drawProjectile(int cxScreen, int cyScreen) {
-    for (int r = 0; r < PROJ_H; r++) {
-        int row = cyScreen - PROJ_H / 2 + r;
+void drawProjectile(int cxScreen, int cyScreen, int shotType, int shotDir) {
+    const wchar_t** spr;
+    int sprH, sprW;
+    if (shotType == ENEMY_SWORD) {
+        spr  = SPRITE_SWORD_PROJ;
+        sprH = SWORD_PROJ_H;
+        sprW = SWORD_PROJ_W;
+    } else {
+        spr  = SPRITE_PROJECTILE;
+        sprH = PROJ_H;
+        sprW = PROJ_W;
+    }
+    bool doFlip = (shotType == ENEMY_SWORD && shotDir == -1);
+    wchar_t flipped[SWORD_PROJ_W + 4];
+    for (int r = 0; r < sprH; r++) {
+        int row = cyScreen - sprH / 2 + r;
         if (row < 2 || row >= SCREEN_H) continue;
-        const wchar_t* line = SPRITE_PROJECTILE[r];
+        const wchar_t* line;
+        if (doFlip) { flipLine(spr[r], flipped, SWORD_PROJ_W + 4); line = flipped; }
+        else        { line = spr[r]; }
         for (int c = 0; line[c] != L'\0'; c++) {
             if (line[c] == L' ') continue;
-            int col = cxScreen - PROJ_W / 2 + c;
+            int col = cxScreen - sprW / 2 + c;
             if (col < 0 || col >= SCREEN_W) continue;
             wchar_t ch[2] = { line[c], L'\0' };
             mvaddwstr(row, col, ch);
@@ -178,7 +193,7 @@ void* renderThread(void*) {
         /* Proyectiles enemigos */
         for (int i = 0; i < MAX_ENEMY_SHOTS; i++) {
             if (!enemyShots[i].active) continue;
-            drawProjectile((int)(enemyShots[i].x - camX), (int)enemyShots[i].y);
+            drawProjectile((int)(enemyShots[i].x - camX), (int)enemyShots[i].y, enemyShots[i].shotType, enemyShots[i].dir);
         }
 
         /* Kirby */
@@ -225,22 +240,38 @@ void* renderThread(void*) {
         }
 
         /* Estrella y proyectiles de Kirby */
-        if (starActive) drawProjectile((int)(starX - camX), (int)starY);
+        if (starActive) drawProjectile((int)(starX - camX), (int)starY, -1);
         for (int i = 0; i < MAX_KIRBY_SHOTS; i++) {
             if (!kirbyShots[i].active) continue;
-            drawProjectile((int)(kirbyShots[i].x - camX), (int)kirbyShots[i].y);
+            drawProjectile((int)(kirbyShots[i].x - camX), (int)kirbyShots[i].y, kirbyShots[i].shotType, kirbyShots[i].dir);
         }
-
         /* HUD */
-        mvprintw(0, 2, "KIRBY");
-        for (int i = 0; i < maxHp; i++) {
-            if (i < hp) { wchar_t f[] = L"■"; mvaddwstr(0, 8+i*2, f); }
-            else         { wchar_t e[] = L"□"; mvaddwstr(0, 8+i*2, e); }
-        }
-        mvprintw(0, 8 + maxHp*2 + 3, "NIVEL %d", currentLevel);
+        // Etiqueta "KIRBY" en sprite de 3 filas
+        static const wchar_t* KIRBY_LABEL[3] = {
+            L"██ ▄█▀ ██ ██▀▀█▄ ██▀▀█▄ ██  ██ █",
+            L"████   ██ ██▄▄▀▀ ██▀▀▄▄  ▀██▀    ",
+            L"██ ▀█▄ ██ ██  ██ ██▄▄▀▀   ██   █ "
+        };
+        for (int r = 0; r < 3; r++)
+            mvaddwstr(r, 2, KIRBY_LABEL[r]);
 
-        if (stuffed) { mvprintw(2, 2, "BOCA: "); mvaddwstr(2, 8, L"\u25cf"); mvprintw(2, 10, "(E/S)"); }
-        else         { mvprintw(2, 2, "BOCA: "); mvaddwstr(2, 8, L"\u25cb"); }
+
+        static const wchar_t* HP_FULL[3]  = { L"▄▀▀██▄", 
+                                              L"██████", 
+                                              L"▀████▀" };
+
+
+        static const wchar_t* HP_EMPTY[3] = { L"▄▀▀▀▀▄", 
+                                              L"█    █", 
+                                              L"▀▄▄▄▄▀" };
+                                              
+        for (int i = 0; i < maxHp; i++) {
+            const wchar_t** hpSprite = (i < hp) ? HP_FULL : HP_EMPTY;
+            int col = 38 + i * 7;
+            for (int r = 0; r < 3; r++)
+                mvaddwstr(r, col, hpSprite[r]);
+        }
+
 
         const wchar_t** picon = (powerup == POWER_FIRE)  ? ICON_FIRE  :
                                 (powerup == POWER_BEAM)  ? ICON_BEAM  :

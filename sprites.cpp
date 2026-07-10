@@ -6,27 +6,7 @@
    Kirby Dreamland (ncurses)
    ══════════════════════════════════════════════════════ */
 
-/* ── Dimensiones de Kirby ── */
-#define KIRBY_H  21
-#define KIRBY_W  45
 
-/* ── Dimensiones de enemigos ── */
-#define ENEMY_H  21
-#define ENEMY_W  43
-
-/* ── Dimensiones del proyectil ── */
-#define PROJ_H    9
-#define PROJ_W   17
-
-/* ── Dimensiones de los iconos de power-up (HUD) ── */
-#define ICON_H   22
-#define ICON_W   35
-
-/* ── Dimensiones de la meta ── */
-#define GOAL_W    42
-#define GOAL_H    20
-
-/* ── Dimensiones del menú ── */
 
 
 /* ════════════════════════════════
@@ -323,6 +303,31 @@ L" █▒▒          ▒▒█",
 L"  █▒▒▒      ▒▒▒█ ",
 L"   ███▒▒▒▒▒▒███  ",
 L"      ██████     "
+};
+
+
+/* ════════════════════════════════
+   Sprite de proyectil de espada
+   ════════════════════════════════ */
+
+const wchar_t* SPRITE_SWORD_PROJ[SWORD_PROJ_H] = {
+    L" ▒▒▒▒▒▒▒▒▒▒▒▒               ",
+    L"▒▓▓▓         ▒▒▒▒           ",
+    L"    ▓▓▓▓░░░     ▒▒▒▒▒       ",
+    L"    ▒▒▓▓▓▓░░░       ▒▒▒     ",
+    L"    ▓▓▒▒▓ ▓░░░       ▒▒▒▒   ",
+    L"   ▒▒▒▓▓▒▓ ▓░░░   ░    ▒▒▒  ",
+    L"  ▓▒▒▓▒▒▓ ▓ ▓░░░   ░ ▒   ▒▒ ",
+    L"   ▓▒ ▓▒  ▓ ▓░░░    ░ ▒  ▒▒▒",
+    L"   ▓        ▓░░░    ░ ▒   ▒▒",
+    L"   ▓▒ ▓▒  ▓ ▓░░░    ░ ▒  ▒▒▒",
+    L"  ▓▒▒▓▒▒▓ ▓ ▓░░░   ░ ▒   ▒▒ ",
+    L"   ▒▒▒▓▓▒▓ ▓░░░   ░    ▒▒▒  ",
+    L"    ▓▓▒▒▓ ▓░░░       ▒▒▒▒   ",
+    L"    ▒▒▓▓▓▓░░░       ▒▒▒     ",
+    L"    ▓▓▓▓░░░     ▒▒▒▒▒       ",
+    L"▒▓▓▓         ▒▒▒▒           ",
+    L" ▒▒▒▒▒▒▒▒▒▒▒▒               "
 };
 
 

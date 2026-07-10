@@ -31,6 +31,24 @@ void initEnemies() {
     float gy = (float)(groundY - ENEMY_H);
 
     for (int i = 0; i < NUM_ENEMIES; i++) enemies[i].alive = false;
+// Proyectil para ENEMY_SWORD
+//  ▒▒▒▒▒▒▒▒▒▒▒▒               
+// ▒▓▓▓         ▒▒▒▒           
+//     ▓▓▓▓░░░     ▒▒▒▒▒       
+//     ▒▒▓▓▓▓░░░       ▒▒▒     
+//     ▓▓▒▒▓ ▓░░░       ▒▒▒▒   
+//    ▒▒▒▓▓▒▓ ▓░░░   ░    ▒▒▒  
+//   ▓▒▒▓▒▒▓ ▓ ▓░░░   ░ ▒   ▒▒ 
+//    ▓▒ ▓▒  ▓ ▓░░░    ░ ▒  ▒▒▒
+//    ▓        ▓░░░    ░ ▒   ▒▒
+//    ▓▒ ▓▒  ▓ ▓░░░    ░ ▒  ▒▒▒
+//   ▓▒▒▓▒▒▓ ▓ ▓░░░   ░ ▒   ▒▒ 
+//    ▒▒▒▓▓▒▓ ▓░░░   ░    ▒▒▒  
+//     ▓▓▒▒▓ ▓░░░       ▒▒▒▒   
+//     ▒▒▓▓▓▓░░░       ▒▒▒     
+//     ▓▓▓▓░░░     ▒▒▒▒▒       
+// ▒▓▓▓         ▒▒▒▒           
+//  ▒▒▒▒▒▒▒▒▒▒▒▒  
 
     if (currentLevel == 1) {
         enemies[0] = { 80,    gy,      ENEMY_W, ENEMY_H, true,  1, 1.0f, CUBE_DIR_FRAMES,    ENEMY_CUBE,    0, 0, 0 };
@@ -52,10 +70,10 @@ void initEnemies() {
 /* ════════════════════════════════
    spawnEnemyShot  (llamar con projMutex tomado)
    ════════════════════════════════ */
-void spawnEnemyShot(float x, float y, int dir, float vx, float vy, int life) {
+void spawnEnemyShot(float x, float y, int dir, float vx, float vy, int life, int shotType) {
     for (int i = 0; i < MAX_ENEMY_SHOTS; i++) {
         if (!enemyShots[i].active) {
-            enemyShots[i] = { x, y, vx, vy, dir, true, life, life };
+            enemyShots[i] = { x, y, vx, vy, dir, true, life, life, shotType };
             return;
         }
     }
@@ -153,7 +171,7 @@ void* enemyThread(void*) {
                             float sx = (e.burstDir == 1) ? (e.x + e.w + SWORD_SLASH_OFFSET)
                                                          : (e.x - SWORD_SLASH_OFFSET);
                             float sy = e.y + e.h / 2.0f;
-                            spawnEnemyShot(sx, sy, e.burstDir, 0.0f, 0.0f, SWORD_SLASH_LIFE);
+                            spawnEnemyShot(sx, sy, e.burstDir, 0.0f, 0.0f, SWORD_SLASH_LIFE, ENEMY_SWORD);
                         }
                         e.burstDelay = SWORD_BURST_GAP;
                     }

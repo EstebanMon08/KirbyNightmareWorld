@@ -64,6 +64,7 @@ struct EnemyShot {
     bool  active;
     int   life;
     int   life0;
+    int   shotType;  /* ENEMY_SWORD para slash, -1 para el resto */
 };
 
 extern const int NUM_ENEMIES;
@@ -74,5 +75,5 @@ extern EnemyShot enemyShots[];
 
 /* ── Funciones ── */
 void  initEnemies();
-void  spawnEnemyShot(float x, float y, int dir, float vx, float vy, int life);
+void  spawnEnemyShot(float x, float y, int dir, float vx, float vy, int life, int shotType = -1);
 void* enemyThread(void*);

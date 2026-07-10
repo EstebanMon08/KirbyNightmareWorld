@@ -240,7 +240,7 @@ void* kirbyThread(void*) {
                         float sx = (gState.kFireBurstDir == 1)
                                        ? (gState.worldX + KIRBY_W + SWORD_SLASH_OFFSET)
                                        : (gState.worldX - SWORD_SLASH_OFFSET);
-                        spawnKirbyShot(sx, gState.y + KIRBY_H / 2.0f, 0.0f, 0.0f, SWORD_SLASH_LIFE);
+                        spawnKirbyShot(sx, gState.y + KIRBY_H / 2.0f, 0.0f, 0.0f, SWORD_SLASH_LIFE, ENEMY_SWORD, gState.kFireBurstDir);
                     }
                     gState.kFireBurstDelay = SWORD_BURST_GAP;
                 }

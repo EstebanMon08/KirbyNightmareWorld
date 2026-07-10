@@ -22,10 +22,10 @@ KirbyShot    kirbyShots[32];
 /* ════════════════════════════════
    spawnKirbyShot  (llamar con projMutex tomado)
    ════════════════════════════════ */
-void spawnKirbyShot(float x, float y, float vx, float vy, int life) {
+void spawnKirbyShot(float x, float y, float vx, float vy, int life, int shotType, int dir) {
     for (int i = 0; i < MAX_KIRBY_SHOTS; i++) {
         if (!kirbyShots[i].active) {
-            kirbyShots[i] = { x, y, vx, vy, true, life };
+            kirbyShots[i] = { x, y, vx, vy, true, life, shotType, dir };
             return;
         }
     }

@@ -46,6 +46,11 @@ extern const wchar_t* SPRITE_SWORD   [];
 /* ── Proyectil universal ── */
 extern const wchar_t* SPRITE_PROJECTILE[];
 
+/* ── Proyectil espada ── */
+#define SWORD_PROJ_H 17
+#define SWORD_PROJ_W 28
+extern const wchar_t* SPRITE_SWORD_PROJ[];
+
 /* ── Iconos de poder (HUD) ── */
 extern const wchar_t* ICON_NONE  [];
 extern const wchar_t* ICON_FIRE  [];
